@@ -11,15 +11,16 @@
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Custom color variables for a more aesthetic theme */
+        /* A more aesthetic and pure color theme */
         :root {
-            --bg-primary: #f8fafc; /* slate-50 */
+            --bg-primary: #f9fafb;      /* gray-50 */
             --bg-secondary: #ffffff;
-            --text-primary: #0f172a; /* slate-900 */
-            --text-secondary: #64748b; /* slate-500 */
-            --accent-primary: #6366f1; /* indigo-500 */
-            --accent-secondary: #818cf8; /* indigo-400 */
-            --danger: #ef4444; /* red-500 */
+            --text-primary: #1f2937;    /* gray-800 */
+            --text-secondary: #6b7280; /* gray-500 */
+            --accent-primary: #14b8a6;   /* teal-500 */
+            --accent-secondary: #5eead4; /* teal-300 */
+            --danger: #f43f5e;          /* rose-500 */
+            --backlog-bg: #fffbeb;      /* yellow-50 */
         }
         .task-checkbox:checked + .task-label .checkbox-icon {
             background-color: var(--accent-primary);
@@ -38,21 +39,21 @@
         }
         /* Smooth transitions for a better feel */
         * {
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-slate-50">
+<body class="bg-gray-50">
 
     <!-- Password Protection Modal -->
-    <div id="password-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-sm p-8 rounded-2xl shadow-2xl text-center">
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Dashboard Locked</h2>
-            <p class="text-slate-500 mb-6">Please enter the password to continue.</p>
+    <div id="password-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-sm p-8 rounded-2xl shadow-2xl text-center transform transition-all" style="opacity:0; transform: scale(0.95);">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Dashboard Locked</h2>
+            <p class="text-gray-500 mb-6">Please enter the password to continue.</p>
             <form id="password-form">
-                <input type="password" id="password-input" class="w-full px-4 py-3 border border-slate-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Password">
-                <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-3 rounded-lg hover:bg-indigo-600 transition-colors">Unlock</button>
-                <p id="password-error" class="text-red-500 text-sm mt-3 h-4"></p>
+                <input type="password" id="password-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none" placeholder="Password">
+                <button type="submit" class="w-full bg-teal-500 text-white font-bold py-3 rounded-lg hover:bg-teal-600 transition-colors">Unlock</button>
+                <p id="password-error" class="text-rose-500 text-sm mt-3 h-4"></p>
             </form>
         </div>
     </div>
@@ -62,34 +63,34 @@
         <div class="w-full max-w-3xl mx-auto">
             
             <header class="text-center mb-6">
-                <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">🚀 Learning Dashboard</h1>
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">🚀 Learning Dashboard</h1>
             </header>
 
             <nav class="flex justify-between items-center bg-white p-2 rounded-xl shadow-md mb-6">
                 <div>
-                    <button id="prev-day-btn" class="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <button id="prev-day-btn" class="px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <button id="next-day-btn" class="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
-                         <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    <button id="next-day-btn" class="px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                         <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
                 </div>
-                <button id="today-btn" class="nav-btn text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">Today</button>
-                <button id="backlog-btn" class="nav-btn text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors flex items-center">
-                    Backlog <span id="backlog-count" class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                <button id="today-btn" class="nav-btn text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">Today</button>
+                <button id="backlog-btn" class="nav-btn text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center">
+                    Backlog <span id="backlog-count" class="ml-2 bg-rose-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </button>
             </nav>
 
             <main id="main-content" class="bg-white shadow-lg rounded-2xl p-6 sm:p-8">
-                <h2 id="current-date-display" class="text-xl font-bold text-center mb-6 text-slate-700"></h2>
+                <h2 id="current-date-display" class="text-xl font-bold text-center mb-6 text-gray-700"></h2>
                 
                 <div id="progress-container" class="mb-8">
                     <div class="flex justify-between mb-1">
-                        <span class="text-base font-medium text-indigo-700">Daily Progress</span>
-                        <span id="progress-text" class="text-sm font-medium text-indigo-700">0%</span>
+                        <span class="text-base font-medium text-teal-700">Daily Progress</span>
+                        <span id="progress-text" class="text-sm font-medium text-teal-700">0%</span>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2.5">
-                        <div id="progress-bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
 
@@ -103,10 +104,17 @@
             // --- SECURITY & SETUP (Simplified) ---
             const CORRECT_PASSWORD = 'ilovearchu';
             const passwordModal = document.getElementById('password-modal');
+            const passwordModalContent = passwordModal.querySelector('div');
             const dashboardContainer = document.getElementById('dashboard-container');
             const passwordForm = document.getElementById('password-form');
             const passwordInput = document.getElementById('password-input');
             const passwordError = document.getElementById('password-error');
+            
+            // For aesthetic entry animation
+            setTimeout(() => {
+                passwordModalContent.style.opacity = '1';
+                passwordModalContent.style.transform = 'scale(1)';
+            }, 50);
 
             function unlockDashboard() {
                 passwordModal.classList.add('hidden');
@@ -190,10 +198,10 @@
                         const taskId = generateTaskId(dateKey, task);
                         if (backlog.some(b => b.id === taskId)) return '';
                         const isChecked = completedTasks.includes(taskId);
-                        return `<div class="flex items-center p-1"><input type="checkbox" id="${taskId}" class="task-checkbox hidden" data-task-id="${taskId}" ${isChecked ? 'checked' : ''}><label for="${taskId}" class="task-label flex items-center cursor-pointer w-full p-3 rounded-lg hover:bg-slate-50"><span class="checkbox-icon flex-shrink-0 w-6 h-6 mr-4 flex items-center justify-center border-2 border-slate-300 rounded-md transition"><svg class="check-icon hidden w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span><span class="flex-grow"><span class="task-text font-medium text-slate-800">${task.task}</span><span class="block text-sm text-slate-500">${task.time}</span></span></label><button class="add-to-backlog-btn p-2 rounded-full hover:bg-red-100 text-red-500 transition-colors" data-task-id="${taskId}" data-task='${JSON.stringify(task)}' title="Add to backlog"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button></div>`;
+                        return `<div class="flex items-center p-1"><input type="checkbox" id="${taskId}" class="task-checkbox hidden" data-task-id="${taskId}" ${isChecked ? 'checked' : ''}><label for="${taskId}" class="task-label flex items-center cursor-pointer w-full p-3 rounded-lg hover:bg-gray-50"><span class="checkbox-icon flex-shrink-0 w-6 h-6 mr-4 flex items-center justify-center border-2 border-gray-300 rounded-md transition"><svg class="check-icon hidden w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span><span class="flex-grow"><span class="task-text font-medium text-gray-800">${task.task}</span><span class="block text-sm text-gray-500">${task.time}</span></span></label><button class="add-to-backlog-btn p-2 rounded-full hover:bg-rose-100 text-rose-500 transition-colors" data-task-id="${taskId}" data-task='${JSON.stringify(task)}' title="Add to backlog"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button></div>`;
                     }).join('');
 
-                    listContainer.innerHTML = tasksHtml.trim() ? `<div class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-200">${tasksHtml}</div>` : `<p class="text-center text-slate-500 py-8">No tasks for this day.</p>`;
+                    listContainer.innerHTML = tasksHtml.trim() ? `<div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-200">${tasksHtml}</div>` : `<p class="text-center text-gray-500 py-8">No tasks for this day.</p>`;
                     updateProgressForDate(date);
                 }
 
@@ -201,10 +209,10 @@
                     dateDisplay.textContent = 'Task Backlog';
                     const backlog = getDb('backlog');
                     if (backlog.length === 0) {
-                        listContainer.innerHTML = `<p class="text-center text-slate-500 py-8">Your backlog is empty. Great job!</p>`;
+                        listContainer.innerHTML = `<p class="text-center text-gray-500 py-8">Your backlog is empty. Great job!</p>`;
                         return;
                     }
-                    const backlogHtml = backlog.map(item => `<div class="flex items-center p-3 bg-amber-50 rounded-lg"><div class="flex-grow"><span class="font-medium text-slate-800">${item.task.task}</span><span class="block text-sm text-slate-500">From: ${new Date(item.originalDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></div><button class="complete-from-backlog-btn p-2 rounded-full hover:bg-green-100 text-green-600 transition-colors" data-task-id="${item.id}" title="Mark as complete"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button><button class="remove-from-backlog-btn p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" data-task-id="${item.id}" title="Remove from backlog"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>`).join('');
+                    const backlogHtml = backlog.map(item => `<div class="flex items-center p-3 bg-yellow-50 rounded-lg"><div class="flex-grow"><span class="font-medium text-gray-800">${item.task.task}</span><span class="block text-sm text-gray-500">From: ${new Date(item.originalDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></div><button class="complete-from-backlog-btn p-2 rounded-full hover:bg-green-100 text-green-600 transition-colors" data-task-id="${item.id}" title="Mark as complete"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button><button class="remove-from-backlog-btn p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors" data-task-id="${item.id}" title="Remove from backlog"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>`).join('');
                     listContainer.innerHTML = `<div class="space-y-3">${backlogHtml}</div>`;
                 }
 
