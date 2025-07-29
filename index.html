@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Learning Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom color variables for a more aesthetic theme */
+        :root {
+            --bg-primary: #f8fafc; /* slate-50 */
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a; /* slate-900 */
+            --text-secondary: #64748b; /* slate-500 */
+            --accent-primary: #6366f1; /* indigo-500 */
+            --accent-secondary: #818cf8; /* indigo-400 */
+            --danger: #ef4444; /* red-500 */
+        }
+        .task-checkbox:checked + .task-label .checkbox-icon {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        .task-checkbox:checked + .task-label .checkbox-icon svg.check-icon {
+            display: block;
+        }
+        .task-checkbox:checked + .task-label .task-text {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        .nav-btn.active {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+        /* Smooth transitions for a better feel */
+        * {
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Password Protection Modal -->
+    <div id="password-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-sm p-8 rounded-2xl shadow-2xl text-center">
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Dashboard Locked</h2>
+            <p class="text-slate-500 mb-6">Please enter the password to continue.</p>
+            <form id="password-form">
+                <input type="password" id="password-input" class="w-full px-4 py-3 border border-slate-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Password">
+                <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-3 rounded-lg hover:bg-indigo-600 transition-colors">Unlock</button>
+                <p id="password-error" class="text-red-500 text-sm mt-3 h-4"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (hidden by default) -->
+    <div id="dashboard-container" class="min-h-screen flex-col items-center p-4 sm:p-6 lg:p-8 hidden">
+        <div class="w-full max-w-3xl mx-auto">
+            
+            <header class="text-center mb-6">
+                <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">🚀 Learning Dashboard</h1>
+            </header>
+
+            <nav class="flex justify-between items-center bg-white p-2 rounded-xl shadow-md mb-6">
+                <div>
+                    <button id="prev-day-btn" class="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <button id="next-day-btn" class="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
+                         <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <button id="today-btn" class="nav-btn text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">Today</button>
+                <button id="backlog-btn" class="nav-btn text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors flex items-center">
+                    Backlog <span id="backlog-count" class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </nav>
+
+            <main id="main-content" class="bg-white shadow-lg rounded-2xl p-6 sm:p-8">
+                <h2 id="current-date-display" class="text-xl font-bold text-center mb-6 text-slate-700"></h2>
+                
+                <div id="progress-container" class="mb-8">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-base font-medium text-indigo-700">Daily Progress</span>
+                        <span id="progress-text" class="text-sm font-medium text-indigo-700">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="list-container" class="space-y-6"></div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- SECURITY & SETUP (Simplified) ---
+            const CORRECT_PASSWORD = 'ilovearchu';
+            const passwordModal = document.getElementById('password-modal');
+            const dashboardContainer = document.getElementById('dashboard-container');
+            const passwordForm = document.getElementById('password-form');
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+
+            function unlockDashboard() {
+                passwordModal.classList.add('hidden');
+                dashboardContainer.classList.remove('hidden');
+                dashboardContainer.classList.add('flex'); // Make it visible and flex
+                initializeDashboard();
+            }
+
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const enteredPassword = passwordInput.value;
+
+                if (enteredPassword === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('isAuthenticated', 'true');
+                    unlockDashboard();
+                } else {
+                    passwordError.textContent = 'Incorrect password. Please try again.';
+                    passwordInput.value = '';
+                }
+            });
+
+            // Check if user is already authenticated in this session
+            if (sessionStorage.getItem('isAuthenticated') === 'true') {
+                unlockDashboard();
+            }
+
+            // --- DASHBOARD INITIALIZATION ---
+            function initializeDashboard() {
+                const schedule = {
+                    0: [ { time: '10:00 AM - 1:00 PM', task: 'Deep Work: ML from Scratch (3 hours)', category: 'Deep Work' }, { time: '2:30 PM - 4:30 PM', task: 'Flex Time / Catch-up / Web3 & Rust', category: 'Flex Time' }, { time: '7:00 PM - 8:00 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' }, { time: '8:00 PM onwards', task: 'Weekly Review & Planning', category: 'Planning' } ],
+                    1: [ { time: '5:30 PM - 7:30 PM', task: 'Deep Work: Coursera ML Math', category: 'Deep Work' }, { time: '7:30 PM - 8:30 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' }, { time: '9:30 PM - 10:30 PM', task: 'Gen AI: Learning', category: 'Gen AI' } ],
+                    2: [ { time: '5:30 PM - 7:30 PM', task: 'Deep Work: ML from Scratch (YouTube)', category: 'Deep Work' }, { time: '7:30 PM - 8:30 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' }, { time: '9:30 PM - 10:00 PM', task: 'Watch one NN Viz Video', category: 'Light Learning' } ],
+                    3: [ { time: '11:15 AM - 1:15 PM', task: 'Gen AI: Deep Dive & Scripting (Library Time)', category: 'Gen AI' }, { time: '5:30 PM - 7:00 PM', task: 'Deep Work: Coursera ML Math', category: 'Deep Work' }, { time: '7:00 PM - 8:00 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' } ],
+                    4: [ { time: '6:30 PM - 8:30 PM', task: 'Deep Work: ML from Scratch (YouTube)', category: 'Deep Work' }, { time: '8:30 PM - 9:30 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' }, { time: '10:00 PM - 10:30 PM', task: 'Watch one NN Viz Video', category: 'Light Learning' } ],
+                    5: [ { time: '6:00 PM - 8:00 PM', task: 'Gen AI: Finalize Scripts & Prep for Recording', category: 'Gen AI' }, { time: '8:00 PM - 9:00 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' }, { time: '9:30 PM onwards', task: 'Flex Time / Web3 & Rust', category: 'Flex Time' } ],
+                    6: [ { time: '10:00 AM - 1:00 PM', task: 'Deep Work: Coursera (3 hours)', category: 'Deep Work' }, { time: '2:30 PM - 5:30 PM', task: 'Gen AI: Production (Record & Edit Videos)', category: 'Gen AI' }, { time: '7:00 PM - 8:00 PM', task: 'Daily LeetCode Grind (3 Qs)', category: 'Daily Habit' } ]
+                };
+
+                let state = { currentDate: new Date(), view: 'tasks' };
+                const listContainer = document.getElementById('list-container');
+                const dateDisplay = document.getElementById('current-date-display');
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                const progressContainer = document.getElementById('progress-container');
+                const backlogCountEl = document.getElementById('backlog-count');
+                const todayBtn = document.getElementById('today-btn');
+                const backlogBtn = document.getElementById('backlog-btn');
+                const prevDayBtn = document.getElementById('prev-day-btn');
+                const nextDayBtn = document.getElementById('next-day-btn');
+
+                const getDb = (key) => JSON.parse(localStorage.getItem(key)) || [];
+                const setDb = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+
+                function getDateKey(date) { const d = new Date(date); d.setHours(0, 0, 0, 0); return d.toISOString().split('T')[0]; }
+                function generateTaskId(dateKey, task) { return `${dateKey}-${task.task.replace(/\s+/g, '-').slice(0, 20)}`; }
+
+                function render() {
+                    updateBacklogCount();
+                    if (state.view === 'tasks') {
+                        renderTasksForDate(state.currentDate);
+                        todayBtn.classList.add('active');
+                        backlogBtn.classList.remove('active');
+                        progressContainer.style.display = 'block';
+                    } else {
+                        renderBacklogView();
+                        todayBtn.classList.remove('active');
+                        backlogBtn.classList.add('active');
+                        progressContainer.style.display = 'none';
+                    }
+                }
+
+                function renderTasksForDate(date) {
+                    const dateKey = getDateKey(date);
+                    const dayOfWeek = date.getDay();
+                    dateDisplay.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                    const dailySchedule = schedule[dayOfWeek] || [];
+                    const completedTasks = getDb(dateKey);
+                    const backlog = getDb('backlog');
+
+                    const tasksHtml = dailySchedule.map(task => {
+                        const taskId = generateTaskId(dateKey, task);
+                        if (backlog.some(b => b.id === taskId)) return '';
+                        const isChecked = completedTasks.includes(taskId);
+                        return `<div class="flex items-center p-1"><input type="checkbox" id="${taskId}" class="task-checkbox hidden" data-task-id="${taskId}" ${isChecked ? 'checked' : ''}><label for="${taskId}" class="task-label flex items-center cursor-pointer w-full p-3 rounded-lg hover:bg-slate-50"><span class="checkbox-icon flex-shrink-0 w-6 h-6 mr-4 flex items-center justify-center border-2 border-slate-300 rounded-md transition"><svg class="check-icon hidden w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span><span class="flex-grow"><span class="task-text font-medium text-slate-800">${task.task}</span><span class="block text-sm text-slate-500">${task.time}</span></span></label><button class="add-to-backlog-btn p-2 rounded-full hover:bg-red-100 text-red-500 transition-colors" data-task-id="${taskId}" data-task='${JSON.stringify(task)}' title="Add to backlog"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button></div>`;
+                    }).join('');
+
+                    listContainer.innerHTML = tasksHtml.trim() ? `<div class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-200">${tasksHtml}</div>` : `<p class="text-center text-slate-500 py-8">No tasks for this day.</p>`;
+                    updateProgressForDate(date);
+                }
+
+                function renderBacklogView() {
+                    dateDisplay.textContent = 'Task Backlog';
+                    const backlog = getDb('backlog');
+                    if (backlog.length === 0) {
+                        listContainer.innerHTML = `<p class="text-center text-slate-500 py-8">Your backlog is empty. Great job!</p>`;
+                        return;
+                    }
+                    const backlogHtml = backlog.map(item => `<div class="flex items-center p-3 bg-amber-50 rounded-lg"><div class="flex-grow"><span class="font-medium text-slate-800">${item.task.task}</span><span class="block text-sm text-slate-500">From: ${new Date(item.originalDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></div><button class="complete-from-backlog-btn p-2 rounded-full hover:bg-green-100 text-green-600 transition-colors" data-task-id="${item.id}" title="Mark as complete"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button><button class="remove-from-backlog-btn p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" data-task-id="${item.id}" title="Remove from backlog"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>`).join('');
+                    listContainer.innerHTML = `<div class="space-y-3">${backlogHtml}</div>`;
+                }
+
+                function updateProgressForDate(date) {
+                    const dateKey = getDateKey(date);
+                    const dayOfWeek = date.getDay();
+                    const totalTasks = (schedule[dayOfWeek] || []).length;
+                    const completedTasks = getDb(dateKey).length;
+                    const percentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+                    progressBar.style.width = `${percentage}%`;
+                    progressText.textContent = `${percentage}%`;
+                }
+
+                function updateBacklogCount() { backlogCountEl.textContent = getDb('backlog').length; }
+
+                listContainer.addEventListener('change', (e) => {
+                    const checkbox = e.target;
+                    if (checkbox.matches('.task-checkbox')) {
+                        const taskId = checkbox.dataset.taskId;
+                        const dateKey = getDateKey(state.currentDate);
+                        let completedTasks = getDb(dateKey);
+                        if (checkbox.checked) {
+                            if (!completedTasks.includes(taskId)) completedTasks.push(taskId);
+                        } else {
+                            completedTasks = completedTasks.filter(id => id !== taskId);
+                        }
+                        setDb(dateKey, completedTasks);
+                        updateProgressForDate(state.currentDate);
+                    }
+                });
+
+                listContainer.addEventListener('click', (e) => {
+                    const addToBacklogBtn = e.target.closest('.add-to-backlog-btn');
+                    const completeFromBacklogBtn = e.target.closest('.complete-from-backlog-btn');
+                    const removeFromBacklogBtn = e.target.closest('.remove-from-backlog-btn');
+
+                    if (addToBacklogBtn) {
+                        const taskId = addToBacklogBtn.dataset.taskId;
+                        const taskData = JSON.parse(addToBacklogBtn.dataset.task);
+                        let backlog = getDb('backlog');
+                        if (!backlog.some(b => b.id === taskId)) {
+                            backlog.push({ id: taskId, task: taskData, originalDate: getDateKey(state.currentDate) });
+                            setDb('backlog', backlog);
+                            render();
+                        }
+                    } else if (completeFromBacklogBtn) {
+                        const taskId = completeFromBacklogBtn.dataset.taskId;
+                        let backlog = getDb('backlog');
+                        const itemToComplete = backlog.find(b => b.id === taskId);
+                        if (itemToComplete) {
+                            const dateKey = getDateKey(new Date(itemToComplete.originalDate));
+                            let completedTasks = getDb(dateKey);
+                            if (!completedTasks.includes(taskId)) completedTasks.push(taskId);
+                            setDb(dateKey, completedTasks);
+                            setDb('backlog', backlog.filter(b => b.id !== taskId));
+                            render();
+                        }
+                    } else if (removeFromBacklogBtn) {
+                        const taskId = removeFromBacklogBtn.dataset.taskId;
+                        setDb('backlog', getDb('backlog').filter(b => b.id !== taskId));
+                        render();
+                    }
+                });
+
+                prevDayBtn.addEventListener('click', () => { state.currentDate.setDate(state.currentDate.getDate() - 1); state.view = 'tasks'; render(); });
+                nextDayBtn.addEventListener('click', () => { state.currentDate.setDate(state.currentDate.getDate() + 1); state.view = 'tasks'; render(); });
+                todayBtn.addEventListener('click', () => { state.currentDate = new Date(); state.view = 'tasks'; render(); });
+                backlogBtn.addEventListener('click', () => { state.view = 'backlog'; render(); });
+
+                render();
+            }
+        });
+    </script>
+</body>
+</html>
